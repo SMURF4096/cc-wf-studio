@@ -8,8 +8,8 @@
 import type { AskUserQuestionData, SubAgentData } from '@shared/types/workflow-definition';
 import type React from 'react';
 import type { Node } from 'reactflow';
-import type { PromptNodeData } from '../types/node-types';
 import { useWorkflowStore } from '../stores/workflow-store';
+import type { PromptNodeData } from '../types/node-types';
 import { extractVariables } from '../utils/template-utils';
 
 /**
@@ -100,7 +100,9 @@ export const PropertyPanel: React.FC = () => {
       </div>
 
       {/* Node Name (only for subAgent, askUserQuestion, and prompt types) */}
-      {(selectedNode.type === 'subAgent' || selectedNode.type === 'askUserQuestion' || selectedNode.type === 'prompt') && (
+      {(selectedNode.type === 'subAgent' ||
+        selectedNode.type === 'askUserQuestion' ||
+        selectedNode.type === 'prompt') && (
         <div style={{ marginBottom: '16px' }}>
           <label
             htmlFor="node-name-input"
@@ -622,7 +624,7 @@ const PromptProperties: React.FC<{
             marginTop: '4px',
           }}
         >
-          Use {`{{variableName}}`} syntax for dynamic values
+          Use {'{{variableName}}'} syntax for dynamic values
         </div>
       </div>
 

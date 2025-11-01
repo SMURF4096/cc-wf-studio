@@ -30,9 +30,8 @@ export const PromptNode: React.FC<NodeProps<PromptNodeData>> = React.memo(({ dat
   const variables = extractVariables(data.prompt);
 
   // プロンプトのプレビュー（最初の100文字）
-  const previewText = data.prompt.length > 100
-    ? `${data.prompt.substring(0, 100)}...`
-    : data.prompt;
+  const previewText =
+    data.prompt.length > 100 ? `${data.prompt.substring(0, 100)}...` : data.prompt;
 
   return (
     <div

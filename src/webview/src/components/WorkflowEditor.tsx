@@ -19,11 +19,11 @@ import ReactFlow, {
 } from 'reactflow';
 import { useWorkflowStore } from '../stores/workflow-store';
 import { AskUserQuestionNodeComponent } from './nodes/AskUserQuestionNode';
-import { SubAgentNodeComponent } from './nodes/SubAgentNode';
-// 新規ノードタイプのインポート
-import { StartNode } from './nodes/StartNode';
 import { EndNode } from './nodes/EndNode';
 import { PromptNode } from './nodes/PromptNode';
+// 新規ノードタイプのインポート
+import { StartNode } from './nodes/StartNode';
+import { SubAgentNodeComponent } from './nodes/SubAgentNode';
 
 /**
  * Node types registration (memoized outside component for performance)

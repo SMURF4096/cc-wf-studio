@@ -11,6 +11,9 @@
 export enum NodeType {
   SubAgent = 'subAgent',
   AskUserQuestion = 'askUserQuestion',
+  Start = 'start',
+  End = 'end',
+  Prompt = 'prompt',
 }
 
 // ============================================================================
@@ -51,6 +54,20 @@ export interface AskUserQuestionData {
   outputPorts: number; // 2-4
 }
 
+export interface StartNodeData {
+  label?: string;
+}
+
+export interface EndNodeData {
+  label?: string;
+}
+
+export interface PromptNodeData {
+  label?: string;
+  prompt: string;
+  variables?: Record<string, string>;
+}
+
 // ============================================================================
 // Node Types
 // ============================================================================
@@ -72,7 +89,22 @@ export interface AskUserQuestionNode extends BaseNode {
   data: AskUserQuestionData;
 }
 
-export type WorkflowNode = SubAgentNode | AskUserQuestionNode;
+export interface StartNode extends BaseNode {
+  type: NodeType.Start;
+  data: StartNodeData;
+}
+
+export interface EndNode extends BaseNode {
+  type: NodeType.End;
+  data: EndNodeData;
+}
+
+export interface PromptNode extends BaseNode {
+  type: NodeType.Prompt;
+  data: PromptNodeData;
+}
+
+export type WorkflowNode = SubAgentNode | AskUserQuestionNode | StartNode | EndNode | PromptNode;
 
 // ============================================================================
 // Connection Type

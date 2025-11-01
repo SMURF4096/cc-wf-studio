@@ -9,6 +9,7 @@ import * as path from 'node:path';
 import type {
   AskUserQuestionNode,
   Connection,
+  PromptNode,
   SubAgentNode,
   Workflow,
   WorkflowNode,
@@ -238,8 +239,8 @@ function generateWorkflowExecutionLogic(workflow: Workflow): string {
 
   // Find start node (executable node with no incoming connections or connected from Start node)
   const targetNodeIds = new Set(connections.map((conn) => conn.to));
-  const startNodeConnections = connections.filter(
-    (conn) => nodes.find((n) => n.id === conn.from && (n.type as string) === 'start')
+  const startNodeConnections = connections.filter((conn) =>
+    nodes.find((n) => n.id === conn.from && (n.type as string) === 'start')
   );
 
   let startNodes = executableNodes.filter((node) => !targetNodeIds.has(node.id));
@@ -296,7 +297,7 @@ function generateWorkflowExecutionLogic(workflow: Workflow): string {
       queue.push(...nextNodes);
     } else if (nodeType === 'prompt') {
       // Prompt node: just output the prompt text
-      const promptData = (currentNode as any).data;
+      const promptData = (currentNode as PromptNode).data;
       const promptText = promptData?.prompt || '';
       if (promptText) {
         instructions.push(promptText);

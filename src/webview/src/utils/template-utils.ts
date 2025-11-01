@@ -66,10 +66,7 @@ export function extractVariables(promptText: string): string[] {
  * // => "Hello {{name}}" (プレースホルダーが残る)
  * ```
  */
-export function substituteVariables(
-  promptText: string,
-  values: Record<string, string>,
-): string {
+export function substituteVariables(promptText: string, values: Record<string, string>): string {
   return promptText.replace(VARIABLE_PATTERN, (match, varName: string) => {
     // 値が存在する場合は置換、存在しない場合は元のプレースホルダーを保持
     return values[varName] ?? match;
@@ -94,7 +91,7 @@ export function substituteVariables(
  */
 export function getUndefinedVariables(
   promptText: string,
-  values: Record<string, string>,
+  values: Record<string, string>
 ): string[] {
   const allVariables = extractVariables(promptText);
   return allVariables.filter((varName) => !(varName in values));
@@ -118,9 +115,6 @@ export function getUndefinedVariables(
  * // => false
  * ```
  */
-export function isFullyDefined(
-  promptText: string,
-  values: Record<string, string>,
-): boolean {
+export function isFullyDefined(promptText: string, values: Record<string, string>): boolean {
   return getUndefinedVariables(promptText, values).length === 0;
 }
