@@ -1,3 +1,9 @@
+## [2.13.1](https://github.com/breaking-brake/cc-wf-studio/compare/v2.13.0...v2.13.1) (2025-11-25)
+
+### Bug Fixes
+
+* add MCP server refresh button to resolve cache issue ([#151](https://github.com/breaking-brake/cc-wf-studio/issues/151)) ([0c42c9b](https://github.com/breaking-brake/cc-wf-studio/commit/0c42c9b49e138cfc5edd8250262b61d9f8558a9a))
+
 ## [2.13.0](https://github.com/breaking-brake/cc-wf-studio/compare/v2.12.2...v2.13.0) (2025-11-24)
 
 ### Features
