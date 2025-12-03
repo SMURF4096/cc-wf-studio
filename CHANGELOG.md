@@ -1,3 +1,9 @@
+## [3.2.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.1.0...v3.2.0) (2025-12-03)
+
+### Features
+
+* add AI-assisted workflow name generation ([#215](https://github.com/breaking-brake/cc-wf-studio/issues/215)) ([de76472](https://github.com/breaking-brake/cc-wf-studio/commit/de764721b295c9b910cf671e8e45311fad173ad6))
+
 ## [3.1.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.0.0...v3.1.0) (2025-12-03)
 
 ### Features
