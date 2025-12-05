@@ -1,3 +1,9 @@
+## [3.2.3](https://github.com/breaking-brake/cc-wf-studio/compare/v3.2.2...v3.2.3) (2025-12-05)
+
+### Bug Fixes
+
+* add responsive layout for toolbar and canvas elements ([#221](https://github.com/breaking-brake/cc-wf-studio/issues/221)) ([e3ce419](https://github.com/breaking-brake/cc-wf-studio/commit/e3ce4190a94a1e642430617ef06662f179491fd7))
+
 ## [3.2.2](https://github.com/breaking-brake/cc-wf-studio/compare/v3.2.1...v3.2.2) (2025-12-04)
 
 ### Bug Fixes
