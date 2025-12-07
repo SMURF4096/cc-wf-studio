@@ -1,3 +1,9 @@
+## [3.4.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.3.0...v3.4.0) (2025-12-07)
+
+### Features
+
+* add Sub-Agent Flow support (Beta) ([#228](https://github.com/breaking-brake/cc-wf-studio/issues/228)) ([5730908](https://github.com/breaking-brake/cc-wf-studio/commit/573090810930d00c30ab64220492ed3c8df6a8d7))
+
 ## [3.3.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.2.4...v3.3.0) (2025-12-06)
 
 ### Features
