@@ -1,3 +1,16 @@
+## [3.9.1](https://github.com/breaking-brake/cc-wf-studio/compare/v3.9.0...v3.9.1) (2025-12-23)
+
+### Bug Fixes
+
+* isolate panel state between SubAgentFlowDialog and main canvas ([#323](https://github.com/breaking-brake/cc-wf-studio/issues/323)) ([a1c9d7e](https://github.com/breaking-brake/cc-wf-studio/commit/a1c9d7e7b4e9579e601ca56f58e666ba1cc43095))
+* resolve dialog z-index stacking issue in SubAgentFlowDialog ([#322](https://github.com/breaking-brake/cc-wf-studio/issues/322)) ([7eb6b0c](https://github.com/breaking-brake/cc-wf-studio/commit/7eb6b0c44bfe8358c97f1ebae317961028da1b85))
+* resolve gap between node palette and canvas in compact mode ([#311](https://github.com/breaking-brake/cc-wf-studio/issues/311)) ([8d6ec52](https://github.com/breaking-brake/cc-wf-studio/commit/8d6ec5276557bd7b8f60b45814c7d84305cfcfe3))
+
+### Improvements
+
+* fix tour Load button focus and add Run step ([#312](https://github.com/breaking-brake/cc-wf-studio/issues/312)) ([9ac27ab](https://github.com/breaking-brake/cc-wf-studio/commit/9ac27ab9709e7bdd97cee9d7db0bcd066c0b3732))
+* refine AI editing panel layout with overlay separation ([#321](https://github.com/breaking-brake/cc-wf-studio/issues/321)) ([9c30e4e](https://github.com/breaking-brake/cc-wf-studio/commit/9c30e4e3347ce9b90e486c8a4f23ad75e0bee95e))
+
 ## [3.9.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.8.5...v3.9.0) (2025-12-22)
 
 ### Features
