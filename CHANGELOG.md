@@ -1,3 +1,14 @@
+## [3.12.4](https://github.com/breaking-brake/cc-wf-studio/compare/v3.12.3...v3.12.4) (2026-01-05)
+
+### Bug Fixes
+
+* add z-index to Radix UI dialogs for proper stacking ([#372](https://github.com/breaking-brake/cc-wf-studio/issues/372)) ([b4060a5](https://github.com/breaking-brake/cc-wf-studio/commit/b4060a5dbcf51f3106a08d4abd49dffdbe7989b5))
+* close property dialog when node is deleted ([#371](https://github.com/breaking-brake/cc-wf-studio/issues/371)) ([8abbc9f](https://github.com/breaking-brake/cc-wf-studio/commit/8abbc9fd71a9b55d29521b406200f348cd67ef6c))
+
+### Improvements
+
+* pass validation errors to AI on refinement retry ([#373](https://github.com/breaking-brake/cc-wf-studio/issues/373)) ([bef0c0f](https://github.com/breaking-brake/cc-wf-studio/commit/bef0c0f4197fd0466beec778679d194e9d842cb5))
+
 ## [3.12.3](https://github.com/breaking-brake/cc-wf-studio/compare/v3.12.2...v3.12.3) (2026-01-05)
 
 ### Bug Fixes
