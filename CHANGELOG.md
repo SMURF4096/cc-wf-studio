@@ -1,3 +1,14 @@
+## [3.12.6](https://github.com/breaking-brake/cc-wf-studio/compare/v3.12.5...v3.12.6) (2026-01-06)
+
+### Bug Fixes
+
+* apply CLI path detection to MCP CLI service ([#381](https://github.com/breaking-brake/cc-wf-studio/issues/381)) ([2aabfee](https://github.com/breaking-brake/cc-wf-studio/commit/2aabfee97ecfcf3811b88e771a14a4e53e8ac19e))
+
+### Improvements
+
+* add server name filter to MCP server list ([#380](https://github.com/breaking-brake/cc-wf-studio/issues/380)) ([348e6b3](https://github.com/breaking-brake/cc-wf-studio/commit/348e6b3fc95ffa2b61eff8e674a5a8854382786b))
+* move skill filter above tabs for cross-tab filtering ([#379](https://github.com/breaking-brake/cc-wf-studio/issues/379)) ([d1da015](https://github.com/breaking-brake/cc-wf-studio/commit/d1da015f5493e558df6daab204dec70b61d73807))
+
 ## [3.12.5](https://github.com/breaking-brake/cc-wf-studio/compare/v3.12.4...v3.12.5) (2026-01-05)
 
 ### Bug Fixes
