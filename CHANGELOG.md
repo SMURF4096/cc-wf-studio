@@ -1,3 +1,9 @@
+## [3.15.2](https://github.com/breaking-brake/cc-wf-studio/compare/v3.15.1...v3.15.2) (2026-01-16)
+
+### Improvements
+
+* add Copilot execution mode selection and consolidate prompt generation ([#461](https://github.com/breaking-brake/cc-wf-studio/issues/461)) ([0447683](https://github.com/breaking-brake/cc-wf-studio/commit/0447683231ee4f51810d2485c28bdcad65794d2c))
+
 ## [3.15.1](https://github.com/breaking-brake/cc-wf-studio/compare/v3.15.0...v3.15.1) (2026-01-15)
 
 ### Improvements
