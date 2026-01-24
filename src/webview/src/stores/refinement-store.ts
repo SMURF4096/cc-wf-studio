@@ -8,6 +8,8 @@
 import type {
   AiCliProvider,
   ClaudeModel,
+  CodexModel,
+  CodexReasoningEffort,
   CopilotModel,
   CopilotModelInfo,
 } from '@shared/types/messages';
@@ -18,6 +20,8 @@ import { listCopilotModels } from '../services/refinement-service';
 // localStorage keys
 const MODEL_STORAGE_KEY = 'cc-wf-studio.refinement.selectedModel';
 const COPILOT_MODEL_STORAGE_KEY = 'cc-wf-studio.refinement.selectedCopilotModel';
+const CODEX_MODEL_STORAGE_KEY = 'cc-wf-studio.refinement.selectedCodexModel';
+const CODEX_REASONING_EFFORT_STORAGE_KEY = 'cc-wf-studio.refinement.selectedCodexReasoningEffort';
 const ALLOWED_TOOLS_STORAGE_KEY = 'cc-wf-studio.refinement.allowedTools';
 const PROVIDER_STORAGE_KEY = 'cc-wf-studio.refinement.selectedProvider';
 // Note: This key is shared with Toolbar.tsx for the "Copilot (Beta)" toggle
@@ -132,6 +136,75 @@ function saveCopilotModelToStorage(model: CopilotModel): void {
   }
 }
 
+/** Default Codex model */
+const DEFAULT_CODEX_MODEL: CodexModel = 'gpt-5.1-codex-mini';
+
+/**
+ * Load selected Codex model from localStorage
+ * Returns 'gpt-5.1-codex-mini' as default
+ */
+function loadCodexModelFromStorage(): CodexModel {
+  try {
+    const saved = localStorage.getItem(CODEX_MODEL_STORAGE_KEY);
+    if (saved !== null) {
+      return saved;
+    }
+  } catch {
+    // localStorage may not be available in some contexts
+  }
+  return DEFAULT_CODEX_MODEL;
+}
+
+/**
+ * Save selected Codex model to localStorage
+ */
+function saveCodexModelToStorage(model: CodexModel): void {
+  try {
+    localStorage.setItem(CODEX_MODEL_STORAGE_KEY, model);
+  } catch {
+    // localStorage may not be available in some contexts
+  }
+}
+
+/** Default Codex reasoning effort */
+const DEFAULT_CODEX_REASONING_EFFORT: CodexReasoningEffort = 'low';
+
+/** Valid Codex reasoning effort values (only low/medium/high are supported across all Codex models) */
+export const CODEX_REASONING_EFFORT_OPTIONS: { value: CodexReasoningEffort; label: string }[] = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+];
+
+const VALID_CODEX_REASONING_EFFORTS: CodexReasoningEffort[] = ['low', 'medium', 'high'];
+
+/**
+ * Load selected Codex reasoning effort from localStorage
+ * Returns 'low' as default
+ */
+function loadCodexReasoningEffortFromStorage(): CodexReasoningEffort {
+  try {
+    const saved = localStorage.getItem(CODEX_REASONING_EFFORT_STORAGE_KEY);
+    if (saved && VALID_CODEX_REASONING_EFFORTS.includes(saved as CodexReasoningEffort)) {
+      return saved as CodexReasoningEffort;
+    }
+  } catch {
+    // localStorage may not be available in some contexts
+  }
+  return DEFAULT_CODEX_REASONING_EFFORT;
+}
+
+/**
+ * Save selected Codex reasoning effort to localStorage
+ */
+function saveCodexReasoningEffortToStorage(effort: CodexReasoningEffort): void {
+  try {
+    localStorage.setItem(CODEX_REASONING_EFFORT_STORAGE_KEY, effort);
+  } catch {
+    // localStorage may not be available in some contexts
+  }
+}
+
 /**
  * Load allowed tools from localStorage
  * Returns DEFAULT_ALLOWED_TOOLS if no value is stored or value is invalid
@@ -169,7 +242,7 @@ function saveAllowedToolsToStorage(tools: string[]): void {
 function loadProviderFromStorage(): AiCliProvider {
   try {
     const saved = localStorage.getItem(PROVIDER_STORAGE_KEY);
-    if (saved === 'claude-code' || saved === 'copilot') {
+    if (saved === 'claude-code' || saved === 'copilot' || saved === 'codex') {
       return saved;
     }
   } catch {
@@ -266,6 +339,8 @@ interface RefinementStore {
   timeoutSeconds: number;
   selectedModel: ClaudeModel;
   selectedCopilotModel: CopilotModel;
+  selectedCodexModel: CodexModel;
+  selectedCodexReasoningEffort: CodexReasoningEffort;
   allowedTools: string[];
   selectedProvider: AiCliProvider;
   isCopilotEnabled: boolean;
@@ -291,6 +366,8 @@ interface RefinementStore {
   setTimeoutSeconds: (seconds: number) => void;
   setSelectedModel: (model: ClaudeModel) => void;
   setSelectedCopilotModel: (model: CopilotModel) => void;
+  setSelectedCodexModel: (model: CodexModel) => void;
+  setSelectedCodexReasoningEffort: (effort: CodexReasoningEffort) => void;
   setAllowedTools: (tools: string[]) => void;
   toggleAllowedTool: (toolName: string) => void;
   resetAllowedTools: () => void;
@@ -385,6 +462,8 @@ export const useRefinementStore = create<RefinementStore>((set, get) => ({
   timeoutSeconds: 0, // Default timeout: None (0 = use system guard)
   selectedModel: loadModelFromStorage(), // Load from localStorage, default: 'haiku'
   selectedCopilotModel: loadCopilotModelFromStorage(), // Load from localStorage, default: 'gpt-4o'
+  selectedCodexModel: loadCodexModelFromStorage(), // Load from localStorage, default: 'gpt-5.1-codex-mini'
+  selectedCodexReasoningEffort: loadCodexReasoningEffortFromStorage(), // Load from localStorage, default: 'minimal'
   allowedTools: loadAllowedToolsFromStorage(), // Load from localStorage, default: DEFAULT_ALLOWED_TOOLS
   selectedProvider: loadProviderFromStorage(), // Load from localStorage, default: 'claude-code'
   isCopilotEnabled: loadCopilotEnabledFromStorage(), // Load from localStorage, default: false
@@ -433,6 +512,16 @@ export const useRefinementStore = create<RefinementStore>((set, get) => ({
     saveCopilotModelToStorage(model);
   },
 
+  setSelectedCodexModel: (model: CodexModel) => {
+    set({ selectedCodexModel: model });
+    saveCodexModelToStorage(model);
+  },
+
+  setSelectedCodexReasoningEffort: (effort: CodexReasoningEffort) => {
+    set({ selectedCodexReasoningEffort: effort });
+    saveCodexReasoningEffortToStorage(effort);
+  },
+
   setAllowedTools: (tools: string[]) => {
     set({ allowedTools: tools });
     saveAllowedToolsToStorage(tools);
@@ -475,7 +564,14 @@ export const useRefinementStore = create<RefinementStore>((set, get) => ({
     const currentEnabled = get().isCodexEnabled;
     const newEnabled = !currentEnabled;
     saveCodexEnabledToStorage(newEnabled);
-    set({ isCodexEnabled: newEnabled });
+
+    // When disabling Codex, reset provider to 'claude-code'
+    if (!newEnabled && get().selectedProvider === 'codex') {
+      set({ isCodexEnabled: newEnabled, selectedProvider: 'claude-code' });
+      saveProviderToStorage('claude-code');
+    } else {
+      set({ isCodexEnabled: newEnabled });
+    }
   },
 
   fetchCopilotModels: async () => {

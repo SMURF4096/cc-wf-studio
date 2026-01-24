@@ -277,8 +277,9 @@ export type ClaudeModel = 'sonnet' | 'opus' | 'haiku';
  * AI CLI provider selection
  * - claude-code: Claude Code CLI (default)
  * - copilot: VS Code Language Model API (Copilot)
+ * - codex: OpenAI Codex CLI
  */
-export type AiCliProvider = 'claude-code' | 'copilot';
+export type AiCliProvider = 'claude-code' | 'copilot' | 'codex';
 
 /**
  * Copilot model selection (for VS Code Language Model API)
@@ -286,6 +287,20 @@ export type AiCliProvider = 'claude-code' | 'copilot';
  * The list is dynamic and fetched at runtime from vscode.lm.selectChatModels().
  */
 export type CopilotModel = string;
+
+/**
+ * Codex model selection (for OpenAI Codex CLI)
+ * Common models include 'o3', 'o4-mini', etc.
+ * The list is dynamic and can be configured in ~/.codex/config.toml
+ */
+export type CodexModel = string;
+
+/**
+ * Codex CLI reasoning effort levels
+ * Controls how much reasoning effort the model applies
+ * Note: Only 'low', 'medium', 'high' are supported across all Codex models
+ */
+export type CodexReasoningEffort = 'low' | 'medium' | 'high';
 
 /**
  * Information about a Copilot model available via VS Code LM API
@@ -344,6 +359,10 @@ export interface RefineWorkflowPayload {
   provider?: AiCliProvider;
   /** Copilot model to use when provider is 'copilot' (default: 'gpt-4o') */
   copilotModel?: CopilotModel;
+  /** Codex model to use when provider is 'codex' (default: '' = inherit from CLI config) */
+  codexModel?: CodexModel;
+  /** Codex reasoning effort level (default: 'low') */
+  codexReasoningEffort?: CodexReasoningEffort;
 }
 
 export interface RefinementSuccessPayload {

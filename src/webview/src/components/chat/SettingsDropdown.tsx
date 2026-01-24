@@ -26,7 +26,11 @@ import {
 import { useEffect } from 'react';
 import { useTranslation } from '../../i18n/i18n-context';
 import { openExternalUrl } from '../../services/vscode-bridge';
-import { AVAILABLE_TOOLS, useRefinementStore } from '../../stores/refinement-store';
+import {
+  AVAILABLE_TOOLS,
+  CODEX_REASONING_EFFORT_OPTIONS,
+  useRefinementStore,
+} from '../../stores/refinement-store';
 
 const MODEL_PRESETS: { value: ClaudeModel; label: string }[] = [
   { value: 'sonnet', label: 'Sonnet' },
@@ -37,6 +41,7 @@ const MODEL_PRESETS: { value: ClaudeModel; label: string }[] = [
 const PROVIDER_PRESETS: { value: AiCliProvider; label: string }[] = [
   { value: 'claude-code', label: 'Claude Code' },
   { value: 'copilot', label: 'Copilot' },
+  { value: 'codex', label: 'Codex' },
 ];
 
 // Fixed font sizes for dropdown menu (not responsive)
@@ -60,12 +65,17 @@ export function SettingsDropdown({ onClearHistoryClick, hasMessages }: SettingsD
     setSelectedModel,
     selectedCopilotModel,
     setSelectedCopilotModel,
+    selectedCodexModel,
+    setSelectedCodexModel,
+    selectedCodexReasoningEffort,
+    setSelectedCodexReasoningEffort,
     allowedTools,
     toggleAllowedTool,
     resetAllowedTools,
     selectedProvider,
     setSelectedProvider,
     isCopilotEnabled,
+    isCodexEnabled,
     availableCopilotModels,
     isFetchingCopilotModels,
     copilotModelsError,
@@ -221,8 +231,8 @@ export function SettingsDropdown({ onClearHistoryClick, hasMessages }: SettingsD
             }}
           />
 
-          {/* Provider Sub-menu - Only shown when Copilot is enabled via More Actions */}
-          {isCopilotEnabled && (
+          {/* Provider Sub-menu - Only shown when Copilot or Codex is enabled via More Actions */}
+          {(isCopilotEnabled || isCodexEnabled) && (
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger
                 disabled={isProcessing}
@@ -266,7 +276,12 @@ export function SettingsDropdown({ onClearHistoryClick, hasMessages }: SettingsD
                   }}
                 >
                   <DropdownMenu.RadioGroup value={selectedProvider}>
-                    {PROVIDER_PRESETS.map((preset) => (
+                    {PROVIDER_PRESETS.filter(
+                      (preset) =>
+                        preset.value === 'claude-code' ||
+                        (preset.value === 'copilot' && isCopilotEnabled) ||
+                        (preset.value === 'codex' && isCodexEnabled)
+                    ).map((preset) => (
                       <DropdownMenu.RadioItem
                         key={preset.value}
                         value={preset.value}
@@ -331,7 +346,9 @@ export function SettingsDropdown({ onClearHistoryClick, hasMessages }: SettingsD
                 <span style={{ color: 'var(--vscode-descriptionForeground)' }}>
                   {selectedProvider === 'claude-code'
                     ? currentModelLabel
-                    : currentCopilotModelLabel}
+                    : selectedProvider === 'codex'
+                      ? selectedCodexModel
+                      : currentCopilotModelLabel}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -392,6 +409,128 @@ export function SettingsDropdown({ onClearHistoryClick, hasMessages }: SettingsD
                       </DropdownMenu.RadioItem>
                     ))}
                   </DropdownMenu.RadioGroup>
+                ) : selectedProvider === 'codex' ? (
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: `${FONT_SIZES.small}px`,
+                          color: 'var(--vscode-descriptionForeground)',
+                        }}
+                      >
+                        Model
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openExternalUrl('https://developers.openai.com/codex/models/');
+                        }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          fontSize: '10px',
+                          color: 'var(--vscode-textLink-foreground)',
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <ExternalLink size={10} />
+                        <span>Model list</span>
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={selectedCodexModel}
+                      onChange={(e) => setSelectedCodexModel(e.target.value)}
+                      placeholder="gpt-5.1-codex-mini"
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: `${FONT_SIZES.small}px`,
+                        backgroundColor: 'var(--vscode-input-background)',
+                        color: 'var(--vscode-input-foreground)',
+                        border: '1px solid var(--vscode-input-border)',
+                        borderRadius: '4px',
+                        outline: 'none',
+                        width: '140px',
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        // Prevent arrow keys from being captured by menu navigation
+                        if (
+                          [
+                            'ArrowLeft',
+                            'ArrowRight',
+                            'ArrowUp',
+                            'ArrowDown',
+                            'Home',
+                            'End',
+                          ].includes(e.key)
+                        ) {
+                          e.stopPropagation();
+                        }
+                      }}
+                    />
+                    {/* Reasoning Effort Selector */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginTop: '8px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: `${FONT_SIZES.small}px`,
+                          color: 'var(--vscode-descriptionForeground)',
+                        }}
+                      >
+                        Reasoning
+                      </span>
+                      <select
+                        value={selectedCodexReasoningEffort}
+                        onChange={(e) =>
+                          setSelectedCodexReasoningEffort(
+                            e.target.value as typeof selectedCodexReasoningEffort
+                          )
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: `${FONT_SIZES.small}px`,
+                          backgroundColor: 'var(--vscode-input-background)',
+                          color: 'var(--vscode-input-foreground)',
+                          border: '1px solid var(--vscode-input-border)',
+                          borderRadius: '4px',
+                          outline: 'none',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {CODEX_REASONING_EFFORT_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 ) : isFetchingCopilotModels ? (
                   <div
                     style={{

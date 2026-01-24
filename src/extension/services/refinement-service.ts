@@ -8,6 +8,8 @@
 import type {
   AiCliProvider,
   ClaudeModel,
+  CodexModel,
+  CodexReasoningEffort,
   CopilotModel,
   SkillReference,
 } from '../../shared/types/messages';
@@ -244,6 +246,8 @@ export const DEFAULT_REFINEMENT_TIMEOUT_MS = 90000;
  * @param previousValidationErrors - Validation errors from previous failed attempt (for retry with error context)
  * @param provider - AI CLI provider to use (default: 'claude-code')
  * @param copilotModel - Copilot model to use when provider is 'copilot' (default: 'gpt-4o')
+ * @param codexModel - Codex model to use when provider is 'codex' (default: '' = inherit)
+ * @param codexReasoningEffort - Reasoning effort level for Codex (default: 'minimal')
  * @returns Refinement result with success status and refined workflow or error
  */
 export async function refineWorkflow(
@@ -260,7 +264,9 @@ export async function refineWorkflow(
   allowedTools?: string[],
   previousValidationErrors?: ValidationErrorInfo[],
   provider: AiCliProvider = 'claude-code',
-  copilotModel: CopilotModel = 'gpt-4o'
+  copilotModel: CopilotModel = 'gpt-4o',
+  codexModel: CodexModel = '',
+  codexReasoningEffort: CodexReasoningEffort = 'low'
 ): Promise<RefinementResult> {
   const startTime = Date.now();
 
@@ -390,7 +396,9 @@ export async function refineWorkflow(
           model,
           copilotModel,
           allowedTools,
-          conversationHistory.sessionId
+          conversationHistory.sessionId,
+          codexModel,
+          codexReasoningEffort
         )
       : await executeAi(
           prompt,
@@ -400,7 +408,9 @@ export async function refineWorkflow(
           workspaceRoot,
           model,
           copilotModel,
-          allowedTools
+          allowedTools,
+          codexModel,
+          codexReasoningEffort
         );
 
     // Track whether session was reconnected due to fallback
@@ -411,12 +421,18 @@ export async function refineWorkflow(
       const errorDetails = cliResult.error?.details?.toLowerCase() || '';
       const errorMessage = cliResult.error?.message?.toLowerCase() || '';
       const isSessionError = [
+        // Claude Code specific patterns
         'session not found',
         'session expired',
         'invalid session',
         'no such session',
         'no conversation found with session id',
         'not a valid uuid',
+        // Codex CLI specific patterns (thread-based)
+        'thread not found',
+        'invalid thread',
+        'no thread with id',
+        'thread expired',
       ].some((pattern) => errorDetails.includes(pattern) || errorMessage.includes(pattern));
 
       if (isSessionError) {
@@ -442,7 +458,9 @@ export async function refineWorkflow(
               model,
               copilotModel,
               allowedTools,
-              undefined // No session ID for retry
+              undefined, // No session ID for retry
+              codexModel,
+              codexReasoningEffort
             )
           : await executeAi(
               prompt,
@@ -452,7 +470,9 @@ export async function refineWorkflow(
               workspaceRoot,
               model,
               copilotModel,
-              allowedTools
+              allowedTools,
+              codexModel,
+              codexReasoningEffort
             );
       }
     }
@@ -473,8 +493,9 @@ export async function refineWorkflow(
       sessionReconnected = true;
     }
 
-    // Detect provider switch from Claude Code to Copilot
+    // Detect provider switch from Claude Code/Codex to Copilot
     // Copilot doesn't support session continuation, so previous session is lost
+    // Note: Codex now supports session continuation via thread_id
     if (provider === 'copilot' && conversationHistory.sessionId) {
       log('WARN', 'Session discontinued due to provider switch to Copilot', {
         requestId,
@@ -1148,6 +1169,8 @@ function validateSubAgentFlowNodes(innerWorkflow: InnerWorkflow): {
  * @param allowedTools - Optional array of allowed tool names (e.g., ['Read', 'Grep', 'Glob'])
  * @param provider - AI CLI provider to use (default: 'claude-code')
  * @param copilotModel - Copilot model to use when provider is 'copilot' (default: 'gpt-4o')
+ * @param codexModel - Codex model to use when provider is 'codex' (default: '' = inherit)
+ * @param codexReasoningEffort - Reasoning effort level for Codex (default: 'minimal')
  * @returns SubAgentFlow refinement result
  */
 export async function refineSubAgentFlow(
@@ -1162,7 +1185,9 @@ export async function refineSubAgentFlow(
   model: ClaudeModel = 'sonnet',
   allowedTools?: string[],
   provider: AiCliProvider = 'claude-code',
-  copilotModel: CopilotModel = 'gpt-4o'
+  copilotModel: CopilotModel = 'gpt-4o',
+  codexModel: CodexModel = '',
+  codexReasoningEffort: CodexReasoningEffort = 'low'
 ): Promise<SubAgentFlowRefinementResult> {
   const startTime = Date.now();
 
@@ -1264,14 +1289,17 @@ export async function refineSubAgentFlow(
       workspaceRoot,
       model,
       copilotModel,
-      allowedTools
+      allowedTools,
+      codexModel,
+      codexReasoningEffort
     );
 
     // Track whether session was reconnected due to provider switch
     let sessionReconnected = false;
 
-    // Detect provider switch from Claude Code to Copilot
+    // Detect provider switch from Claude Code/Codex to Copilot
     // Copilot doesn't support session continuation, so previous session is lost
+    // Note: Codex now supports session continuation via thread_id
     if (provider === 'copilot' && conversationHistory.sessionId) {
       log('WARN', 'Session discontinued due to provider switch to Copilot (SubAgentFlow)', {
         requestId,

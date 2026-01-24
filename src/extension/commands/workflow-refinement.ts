@@ -57,6 +57,8 @@ export async function handleRefineWorkflow(
     previousValidationErrors,
     provider = 'claude-code',
     copilotModel = 'gpt-4o',
+    codexModel = '',
+    codexReasoningEffort = 'low',
   } = payload;
   const startTime = Date.now();
 
@@ -79,6 +81,8 @@ export async function handleRefineWorkflow(
     previousErrorCount: previousValidationErrors?.length ?? 0,
     provider,
     copilotModel,
+    codexModel,
+    codexReasoningEffort,
   });
 
   // Route to SubAgentFlow refinement if targetType is 'subAgentFlow'
@@ -147,7 +151,9 @@ export async function handleRefineWorkflow(
       allowedTools,
       previousValidationErrors,
       provider,
-      copilotModel
+      copilotModel,
+      codexModel,
+      codexReasoningEffort
     );
 
     // Check if AI is asking for clarification
@@ -319,6 +325,8 @@ async function handleRefineSubAgentFlow(
     allowedTools,
     provider = 'claude-code',
     copilotModel = 'gpt-4o',
+    codexModel = '',
+    codexReasoningEffort = 'low',
   } = payload;
   const startTime = Date.now();
 
@@ -338,6 +346,8 @@ async function handleRefineSubAgentFlow(
     allowedTools,
     provider,
     copilotModel,
+    codexModel,
+    codexReasoningEffort,
   });
 
   // Validate subAgentFlowId
@@ -414,7 +424,9 @@ async function handleRefineSubAgentFlow(
       model,
       allowedTools,
       provider,
-      copilotModel
+      copilotModel,
+      codexModel,
+      codexReasoningEffort
     );
 
     // Check if AI is asking for clarification
@@ -718,21 +730,31 @@ export async function handleCancelRefinement(
 
   try {
     // Cancel the active refinement process
-    // Try both providers since we don't know which one is active
-    const [claudeResult, copilotResult] = await Promise.all([
+    // Try all providers since we don't know which one is active
+    const [claudeResult, copilotResult, codexResult] = await Promise.all([
       cancelAiRequest('claude-code', targetRequestId),
       cancelAiRequest('copilot', targetRequestId),
+      cancelAiRequest('codex', targetRequestId),
     ]);
 
-    const cancelled = claudeResult.cancelled || copilotResult.cancelled;
-    const executionTimeMs = claudeResult.executionTimeMs ?? copilotResult.executionTimeMs ?? 0;
+    const cancelled = claudeResult.cancelled || copilotResult.cancelled || codexResult.cancelled;
+    const executionTimeMs =
+      claudeResult.executionTimeMs ??
+      copilotResult.executionTimeMs ??
+      codexResult.executionTimeMs ??
+      0;
 
     if (cancelled) {
+      const cancelledBy = claudeResult.cancelled
+        ? 'claude-code'
+        : copilotResult.cancelled
+          ? 'copilot'
+          : 'codex';
       log('INFO', 'Refinement cancelled successfully', {
         requestId,
         targetRequestId,
         executionTimeMs,
-        cancelledBy: claudeResult.cancelled ? 'claude-code' : 'copilot',
+        cancelledBy,
       });
 
       // Send cancellation confirmation
