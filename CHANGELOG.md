@@ -1,3 +1,19 @@
+## [3.19.2](https://github.com/breaking-brake/cc-wf-studio/compare/v3.19.1...v3.19.2) (2026-02-06)
+
+### Bug Fixes
+
+* replace DeepWiki SVG badge with shields.io badge ([#537](https://github.com/breaking-brake/cc-wf-studio/issues/537)) ([8cccf77](https://github.com/breaking-brake/cc-wf-studio/commit/8cccf77f26e452d5b59a7e2c17727b42c51b2732))
+* replace inline SVG icons with PNG in README for vsce compatibility ([#538](https://github.com/breaking-brake/cc-wf-studio/issues/538)) ([16b0f97](https://github.com/breaking-brake/cc-wf-studio/commit/16b0f97dfeefacf7db266bb50ad37632a61a64ae))
+
+### Improvements
+
+* add executionMode to Skill nodes (load/execute) ([#533](https://github.com/breaking-brake/cc-wf-studio/issues/533)) ([590d832](https://github.com/breaking-brake/cc-wf-studio/commit/590d8320db8a5dae267fccac135ea258298f6b38))
+
+### Documentation
+
+* add DeepWiki badge to README ([#530](https://github.com/breaking-brake/cc-wf-studio/issues/530)) ([c1170a1](https://github.com/breaking-brake/cc-wf-studio/commit/c1170a1e7f9ada5f3271295619ceb2c001e7531e))
+* clarify Save/Load vs Export in README ([#529](https://github.com/breaking-brake/cc-wf-studio/issues/529)) ([c2754a4](https://github.com/breaking-brake/cc-wf-studio/commit/c2754a4673aa09be1a7b5743916c094440a1f91b)), closes [#528](https://github.com/breaking-brake/cc-wf-studio/issues/528)
+
 ## [3.19.1](https://github.com/breaking-brake/cc-wf-studio/compare/v3.19.0...v3.19.1) (2026-01-31)
 
 ### Bug Fixes
