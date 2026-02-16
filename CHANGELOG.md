@@ -1,3 +1,17 @@
+## [3.22.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.21.0...v3.22.0) (2026-02-16)
+
+### Features
+
+* add Gemini CLI provider integration ([#565](https://github.com/breaking-brake/cc-wf-studio/issues/565)) ([8b0fd76](https://github.com/breaking-brake/cc-wf-studio/commit/8b0fd7643c12c817d723b25f68e60d56cb4dff94))
+
+### Bug Fixes
+
+* clarify connection constraints for parallel execution support ([#568](https://github.com/breaking-brake/cc-wf-studio/issues/568)) ([8f9d58f](https://github.com/breaking-brake/cc-wf-studio/commit/8f9d58fdbf9b712a79d5852f5a7895bab97a7f28)), closes [#564](https://github.com/breaking-brake/cc-wf-studio/issues/564)
+
+### Improvements
+
+* enhance workflow schema for AI editing quality ([#559](https://github.com/breaking-brake/cc-wf-studio/issues/559)) ([1a53ccc](https://github.com/breaking-brake/cc-wf-studio/commit/1a53ccc6d406727a70d5f727ffc1fbaf557dccb3))
+
 ## [3.21.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.20.0...v3.21.0) (2026-02-08)
 
 ### Features
