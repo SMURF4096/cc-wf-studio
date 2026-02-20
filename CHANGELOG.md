@@ -1,3 +1,9 @@
+## [3.24.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.23.1...v3.24.0) (2026-02-20)
+
+### Features
+
+* move reviewBeforeApply setting to UI toggle in McpServerSection ([#595](https://github.com/breaking-brake/cc-wf-studio/issues/595)) ([a1efbd3](https://github.com/breaking-brake/cc-wf-studio/commit/a1efbd388157e067b552ecb31b12cd41cfc829fd))
+
 ## [3.23.1](https://github.com/breaking-brake/cc-wf-studio/compare/v3.23.0...v3.23.1) (2026-02-19)
 
 ### Bug Fixes
