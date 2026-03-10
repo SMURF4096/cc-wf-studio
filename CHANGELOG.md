@@ -1,3 +1,10 @@
+## [3.27.0](https://github.com/breaking-brake/cc-wf-studio/compare/v3.26.3...v3.27.0) (2026-03-10)
+
+### Features
+
+* add Claude API skill upload, test, and sample code generation ([#635](https://github.com/breaking-brake/cc-wf-studio/issues/635)) ([71c48b4](https://github.com/breaking-brake/cc-wf-studio/commit/71c48b4e067e84e01a8ee4bc906ae3619f1ba044)), closes [#626](https://github.com/breaking-brake/cc-wf-studio/issues/626) [#405](https://github.com/breaking-brake/cc-wf-studio/issues/405)
+* add What's New dialog with unread release badge ([#637](https://github.com/breaking-brake/cc-wf-studio/issues/637)) ([9a6f568](https://github.com/breaking-brake/cc-wf-studio/commit/9a6f56815ec23be31e145dd291cc7e4780ea1e9b))
+
 ## [3.26.3](https://github.com/breaking-brake/cc-wf-studio/compare/v3.26.2...v3.26.3) (2026-03-09)
 
 ### Bug Fixes
