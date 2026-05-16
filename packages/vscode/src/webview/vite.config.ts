@@ -17,7 +17,10 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     rollupOptions: {
       input: {
+        // Canvas entry — full editor used by both the VSCode webview and `ccwf canvas`.
         main: resolve(__dirname, 'index.html'),
+        // Preview entry — read-only WorkflowOverview rendered by `ccwf preview`.
+        overview: resolve(__dirname, 'overview.html'),
       },
       output: {
         entryFileNames: 'assets/[name].js',
