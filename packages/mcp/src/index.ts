@@ -23,3 +23,4 @@ export {
   createWorkflowMcpServer,
   type CreateWorkflowMcpServerOptions,
 } from './factory.js';
+export { FileWorkflowAdapter, type FileWorkflowAdapterOptions } from './file-adapter.js';
