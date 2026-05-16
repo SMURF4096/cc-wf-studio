@@ -324,7 +324,14 @@ export interface PlanWorkflowExportOptions {
 
 const AGENTS_DIR = '.claude/agents';
 // Claude Code is rolling .claude/commands/ into .claude/skills/, so the
-// SlashCommand-style entry point for a workflow lives under skills/ now.
+// workflow entry point lives under skills/ now. Agent Skills are *directories*
+// containing SKILL.md (see the skill-creator skill), so the workflow becomes
+// `.claude/skills/<workflow>/SKILL.md` — consistent with how the other agents
+// (cursor, codex, antigravity, …) write `<root>/skills/<name>/SKILL.md`.
+// NOTE: the SKILL.md body is still produced by `generateSlashCommandFile`, so
+// it retains SlashCommand-specific frontmatter (hooks, model, context, …)
+// that the Skill spec doesn't recognise. Migrating that content to true Skill
+// frontmatter is deferred to a later phase.
 const SKILLS_DIR = '.claude/skills';
 
 /**
@@ -378,9 +385,10 @@ export function planWorkflowExportFiles(
     }
   }
 
-  // Workflow-as-Skill entry (the former SlashCommand file, now under skills/).
+  // Workflow-as-Skill entry. Agent Skills are directory + SKILL.md, so the
+  // workflow's entry sits at `.claude/skills/<workflow-name>/SKILL.md`.
   planned.push({
-    relativePath: `${SKILLS_DIR}/${workflowBaseName}.md`,
+    relativePath: `${SKILLS_DIR}/${workflowBaseName}/SKILL.md`,
     contents: generateSlashCommandFile(workflow, options),
     kind: 'slashCommand',
     sourceName: workflow.name,

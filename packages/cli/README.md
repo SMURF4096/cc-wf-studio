@@ -71,7 +71,7 @@ Output layout by target agent:
 
 | `--agent` | Files emitted (relative to `--cwd` / `process.cwd()`) |
 |---|---|
-| `claude-code` (default) | `.claude/agents/<sub-agent>.md` (for inline SubAgent nodes) + `.claude/skills/<workflow>.md` |
+| `claude-code` (default) | `.claude/agents/<sub-agent>.md` (for inline SubAgent nodes) + `.claude/skills/<workflow>/SKILL.md` |
 | `antigravity` | `.agent/skills/<workflow>/SKILL.md` |
 | `codex` | `.codex/skills/<workflow>/SKILL.md` |
 | `copilot` | `.github/skills/<workflow>/SKILL.md` |
@@ -79,7 +79,9 @@ Output layout by target agent:
 | `gemini` | `.gemini/skills/<workflow>/SKILL.md` |
 | `roo-code` | `.roo/skills/<workflow>/SKILL.md` |
 
-`.claude/commands/` is the previous home for the workflow entry; Claude Code is folding it into `.claude/skills/`, and `ccwf export --agent claude-code` writes the new path. Existing `.claude/commands/<workflow>.md` files are not deleted automatically.
+`.claude/commands/` is the previous home for the workflow entry; Claude Code is folding it into `.claude/skills/`, where each skill is a *directory* containing `SKILL.md` (see the Agent Skills format). `ccwf export --agent claude-code` writes to the new directory-based layout. Existing `.claude/commands/<workflow>.md` files are not deleted automatically.
+
+The body of `SKILL.md` is, for now, still produced by the legacy SlashCommand generator — so its frontmatter retains fields like `hooks`, `model`, and `argument-hint` that the Skill spec doesn't strictly recognise. Migrating that body to a pure Skill format (and deciding what to do with the SlashCommand-only options) is a follow-up task.
 
 ### `ccwf run`
 
