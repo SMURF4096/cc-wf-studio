@@ -3,9 +3,9 @@
  *
  * Lighter sibling of `ccwf canvas`: serves only the bundled `overview.html`
  * (Mermaid + Markdown panes), with no WebSocket and no message-channel
- * emulation. The workflow JSON is injected into the page at boot; reloads
- * with `--watch` come through a Server-Sent Events stream that the page
- * subscribes to on its own.
+ * emulation. The workflow JSON is injected into the page at boot, and the
+ * server watches the file on disk — any change pushes a Server-Sent Events
+ * reload to the open tabs.
  *
  * Use cases: remote SSH, GitHub Codespaces terminals, CI environments where
  * you just want to look at a workflow without VSCode.
@@ -24,7 +24,6 @@ import { WorkflowLoadError, loadWorkflowFromFile } from '../utils/load-workflow.
 interface PreviewOptions {
   port?: string;
   host?: string;
-  watch?: boolean;
   keepAlive?: boolean;
 }
 
@@ -92,7 +91,6 @@ export function registerPreviewCommand(program: Command): void {
     .argument('<file>', 'Path to a workflow JSON file.')
     .option('--port <number>', 'Preferred port (default: ephemeral / 0).')
     .option('--host <address>', 'Bind host. Default 127.0.0.1; do not change for public networks.')
-    .option('--watch', 'Reload the browser whenever <file> changes on disk.', false)
     .option(
       '--keep-alive',
       'Keep the server running after the browser tab is closed. By default the server shuts down 30s after the last viewer disconnects.',
@@ -126,42 +124,38 @@ export function registerPreviewCommand(program: Command): void {
           },
         });
 
-        // The SSE channel powers both auto-reload (--watch) and the
-        // disconnect-detection that drives auto-shutdown. Always include the URL
-        // in the bootstrap so the browser keeps the channel open even without
-        // --watch; the server simply doesn't broadcast workflow-changed events
-        // in that case.
+        // The SSE channel powers both auto-reload on file change and the
+        // disconnect-detection that drives auto-shutdown. The page subscribes
+        // unconditionally; both behaviours are baked in.
         const sseUrl = `http://${server.host}:${server.port}/events/${server.token}`;
         server.setBootstrap({ workflow: initialWorkflow, locale, sseUrl });
 
-        const watcher = options.watch
-          ? watchWorkflowFile({
-              filePath: workflowAbsPath,
-              onChange: async () => {
-                try {
-                  const next = await readMigratedWorkflow(workflowAbsPath);
-                  server.setBootstrap({ workflow: next, locale, sseUrl });
-                  server.broadcastWorkflowChanged();
-                  process.stdout.write(`[ccwf preview] Reloaded ${workflowAbsPath}\n`);
-                } catch (error) {
-                  process.stderr.write(
-                    `[ccwf preview] Skipped reload (read failed): ${error instanceof Error ? error.message : String(error)}\n`
-                  );
-                }
-              },
-            })
-          : null;
+        const watcher = watchWorkflowFile({
+          filePath: workflowAbsPath,
+          onChange: async () => {
+            try {
+              const next = await readMigratedWorkflow(workflowAbsPath);
+              server.setBootstrap({ workflow: next, locale, sseUrl });
+              server.broadcastWorkflowChanged();
+              process.stdout.write(`[ccwf preview] Reloaded ${workflowAbsPath}\n`);
+            } catch (error) {
+              process.stderr.write(
+                `[ccwf preview] Skipped reload (read failed): ${error instanceof Error ? error.message : String(error)}\n`
+              );
+            }
+          },
+        });
 
         const banner = [
           `ccwf preview listening at ${server.url}`,
           `  workflow:        ${workflowAbsPath}`,
           `  bind:            ${server.host}:${server.port}`,
-          options.watch ? `  watch:           on` : `  watch:           off`,
           options.keepAlive
             ? `  auto-shutdown:   off (--keep-alive)`
             : `  auto-shutdown:   on (${AUTO_SHUTDOWN_AFTER_MS / 1000}s after last viewer leaves)`,
           '',
           'Read-only — saves in this view are disabled by design (use `ccwf canvas` for editing).',
+          'Browser auto-reloads when the workflow file changes on disk.',
           'localhost-only — DO NOT expose this URL on a public network.',
           'Press Ctrl+C to stop.',
         ].join('\n');
@@ -171,7 +165,7 @@ export function registerPreviewCommand(program: Command): void {
 
         const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
           process.stdout.write(`\nReceived ${signal}, shutting down ccwf preview…\n`);
-          watcher?.close();
+          watcher.close();
           try {
             await server.close();
           } catch (error) {
