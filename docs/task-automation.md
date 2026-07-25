@@ -8,6 +8,10 @@ and models: **ideation** (`next-idea` skill, Fable) fills the idea queue,
 agents follow live in those two skills and `IMPLEMENTATION_PLAN.md`; this
 file is the map.
 
+A separate, sibling track builds the **automated test suite** — see
+[The quality-assurance track](#the-quality-assurance-track) at the end of
+this file. Everything above that section describes the feature track.
+
 ## Architecture
 
 ```mermaid
@@ -127,7 +131,74 @@ as privilege changes); closing or editing human-authored issues.
 | Label | Meaning | Created by |
 |---|---|---|
 | `idea` | A judged value proposal (locked at creation; every built task has one) | next-idea (`gh label create --force`) |
+| `qa` | A queued quality-assurance task (test infra, unit test, regression test) | humans / next-qa |
 | `auto-generated` | Filed by automation, not a human | automation |
 | `ci-failure` | An unattended workflow run failed | scheduled-failure-issue |
-| `needs-attention` | An agent PR failed CI 3× and was parked for a human | next-task |
-| `bug` | Human-reported defect | humans / issue templates |
+| `needs-attention` | An agent PR failed CI 3× and was parked for a human | next-task / next-qa |
+| `bug` | Defect reported by a human, or by the QA loop when a test fails | humans / issue templates / next-qa |
+
+## The quality-assurance track
+
+The feature track's merge gate is `pnpm build` + `pnpm check` — it proves
+the code *compiles*, never that it *behaves*. On `auto-dev` that gate is the
+only thing between an agent's mistake and a merged change. The QA track
+exists to close that gap by building the automated suite that turns
+behavioral regressions into red builds.
+
+```mermaid
+flowchart TD
+    M["main"] -->|branch| AD["auto-dev<br>(feature track)"]
+    M -->|branch| AQ["auto-qa<br>(quality track)"]
+    RQI["QA ideation routine<br>(hourly :46, Opus)"] -->|fires a fresh session| NQI["next-qa-idea skill:<br>find the highest-value untested<br>behavior, file + lock ONE qa issue"]
+    NQI --> QQU["QA queue<br>(GitHub Issues, label qa)"]
+    RQ["QA implementation routine<br>(hourly :16, Opus)"] -->|fires a fresh session| NQ["next-qa skill"]
+    QQU --> QQ
+    NQ --> QG{"Open PR on auto-qa<br>already exists?"}
+    QG -->|"yes — serialization guard"| QS["Steward that PR:<br>merge if green / fix if red"]
+    QG -->|no| QQ{"qa queue<br>non-empty?"}
+    QQ -->|yes| QB["Build ONE qa issue on claude/qa-#lt;slug#gt;<br>+ append docs/qa-log.md"]
+    QQ -->|"no — build nothing"| QE["End"]
+    QB -->|"PR — squash-merges on green CI"| AQ
+    QS --> AQ
+    AQ -->|"promotion PR — HUMAN reviews and merges"| M
+    AD -->|"promotion PR — HUMAN reviews and merges"| M
+    QB -.->|"test found a product bug:<br>file a bug issue, land the test skipped"| BUG["bug issue"]
+    BUG -.->|"picked up as an interrupt"| AD
+```
+
+- **Sibling, not nested**: `auto-qa` and `auto-dev` both branch from `main`
+  and are promoted back to `main` by a human, independently. Neither merges
+  into the other. This keeps each promotion review small — the failure mode
+  that produced a 13,787-line diff too large to review in one pass.
+- **Disjoint files, by rule**: because the two branches are promoted
+  independently, every file both tracks touch is a future merge conflict.
+  So **the QA loop never edits `packages/*/src`** — it writes test files,
+  test config, CI config, and `docs/qa-log.md` only. Its memory is a
+  separate log for the same reason.
+- **Found a bug? File it, don't fix it.** When a test proves a product
+  defect, the QA loop opens a `bug` issue and lands the test **skipped**
+  with a comment naming the issue. The feature loop treats `bug` issues as
+  an interrupt and fixes them on `auto-dev`; a later QA iteration un-skips
+  the test once the fix reaches `main`. A red test never merges, and a bug
+  never gets quietly papered over.
+- **Two halves, same as the feature track**: `next-qa-idea` files **one**
+  locked `qa` issue per run (none when 3+ are already open); `next-qa`
+  resolves one per run. One in, one out — the queue tracks implementation's
+  pace instead of outrunning it, so specs don't rot while the code moves.
+  Ideation looks for bugs with no regression test, recently merged code
+  with no coverage, and untested pure logic.
+- **Queue**: GitHub Issues labeled `qa`, locked at creation like `idea`
+  issues. A human can veto any test *before* it is written by closing its
+  issue.
+- **Scope**: `packages/core` (validators, generators, schema) and the pure
+  transforms in `packages/cli` / `packages/mcp`. Webview React rendering and
+  the VSCode host stay on manual E2E deliberately — automating them costs
+  more than it protects, and those failures are ones a user notices at once.
+- **The gate grows with the suite**: `ci.yml` runs on `auto-qa` from the
+  start; the QA loop adds the `pnpm test` step to it as its first task, once
+  there is a suite to run.
+- **Running it**: two Claude Code Remote routines fire every hour —
+  **ideation at :46** and **implementation at :16** (`next-qa-idea` /
+  `next-qa`, both Opus). Manually: `/next-qa-idea` files a task,
+  `/next-qa` builds one. **Promote**:
+  `gh pr create --base main --head auto-qa`.
